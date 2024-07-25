@@ -1,20 +1,11 @@
 import { useState } from "react";
-import "./App.css";
+import "./index.css";
+import RegistroUsuario from "./RegistroUsuario";
 
 function App() {
   const [usuario, setUsuario] = useState("");//Estado para guardar el usuario
   const [clave, setClave] = useState("");//Estado para gusradr clave
   const [logueado, setLogueado] = useState(false)
-
-  // Estados para los campos de registro
-  const [nombres, setNombres] = useState("");
-  const [apellidos, setApellidos] = useState("");
-  const [documento, setDocumento] = useState("");
-  const [telefono, setTelefono] = useState("");
-  const [direccion, setDireccion] = useState("");
-  const [email, setEmail] = useState("");
-  const [rol, setRol] = useState("");
-  
 
   function cambiarUsuario(evento) {
     setUsuario(evento.target.value);
@@ -35,94 +26,16 @@ function App() {
     }
   }
 
-  
-  function registrarUsuario() {
-    console.log(`Registrando usuario con los siguientes datos:
-    Nombres: ${nombres}
-    Apellidos: ${apellidos}
-    Documento: ${documento}
-    Teléfono: ${telefono}
-    Dirección: ${direccion}
-    Email: ${email}
-    Rol: ${rol}
-    Clave: ${clave}`);
+  function handleRegistroCompleto() {
+    setLogueado(false);
+  }
 
-    // Aquí puedes agregar la lógica para registrar el usuario, por ejemplo, enviando los datos a un servidor
-    alert("Usuario registrado exitosamente");
+  if (logueado) {
+    return <RegistroUsuario onRegistrar={handleRegistroCompleto} />;
   }
 
   return (
     <>
-    {logueado ? (<>
-      <h1>Registro Usuarios</h1>
-      <label>
-            Nombres:
-            <input
-              type="text"
-              value={nombres}
-              onChange={(e) => setNombres(e.target.value)}
-            />
-          </label>
-          <label>
-            Apellidos:
-            <input
-              type="text"
-              value={apellidos}
-              onChange={(e) => setApellidos(e.target.value)}
-            />
-          </label>
-          <label>
-            Documento:
-            <input
-              type="text"
-              value={documento}
-              onChange={(e) => setDocumento(e.target.value)}
-            />
-          </label>
-          <label>
-            Teléfono:
-            <input
-              type="text"
-              value={telefono}
-              onChange={(e) => setTelefono(e.target.value)}
-            />
-          </label>
-          <label>
-            Dirección:
-            <input
-              type="text"
-              value={direccion}
-              onChange={(e) => setDireccion(e.target.value)}
-            />
-          </label>
-          <label>
-            Email:
-            <input
-              type="text"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </label>
-          <label>
-            Rol:
-            <input
-              type="text"
-              value={rol}
-              onChange={(e) => setRol(e.target.value)}
-            />
-          </label>
-          <label>
-            Clave:
-            <input
-              type="password"
-              value={clave}
-              onChange={(e) => setClave(e.target.value)}
-            />
-          </label>
-          <button onClick={registrarUsuario}>Registrar</button>
-        </>
-      ) : (
-      <>
       <h1>Inicio de sesión</h1>
       <label htmlFor="usuario">
         Usuario:
@@ -145,8 +58,6 @@ function App() {
       <button type="submit" onClick={ingresar}>
         Ingresar
       </button>
-      </>
-    )}
     </>
   );
 }
