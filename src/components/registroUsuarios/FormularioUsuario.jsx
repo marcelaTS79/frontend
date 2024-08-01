@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import "../../index.css";
 
 function FormularioUsuario({ onRegistrar, usuarioEditando }) {
-  // Utilizar el estado inicial basado en si estamos editando un usuario o no
   const [nombres, setNombres] = useState("");
   const [apellidos, setApellidos] = useState("");
   const [documento, setDocumento] = useState("");
@@ -13,7 +12,6 @@ function FormularioUsuario({ onRegistrar, usuarioEditando }) {
   const [rol, setRol] = useState("");
   const [clave, setClave] = useState("");
 
-  // Efecto para actualizar el estado cuando usuarioEditando cambie
   useEffect(() => {
     if (usuarioEditando) {
       setNombres(usuarioEditando.nombres);
@@ -27,7 +25,7 @@ function FormularioUsuario({ onRegistrar, usuarioEditando }) {
     }
   }, [usuarioEditando]);
 
-  const registrarUsuario = () => {
+  const registrarUsuario = async () => {
     const usuario = {
       nombres,
       apellidos,
@@ -39,8 +37,26 @@ function FormularioUsuario({ onRegistrar, usuarioEditando }) {
       clave,
     };
 
-    alert('Usuario registrado');
-    onRegistrar(usuario);
+    try {
+      const response = await fetch('http://localhost:3000/registrousuarios', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(usuario),
+        credentials: 'include',
+      });
+
+      if (response.ok) {
+        alert('Usuario registrado');
+        onRegistrar();// Notificar al componente padre
+      } else {
+        alert('Error al registrar el usuario');
+      }
+    } catch (err) {
+      console.error('Error al registrar el usuario:', err);
+      alert('Error al registrar el usuario');
+    }
   };
 
   return (

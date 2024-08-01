@@ -1,29 +1,42 @@
-import { useState } from 'react';
-import './UsuariosCRUD.css';
+import { useState, useEffect } from 'react';
 
 const UsuariosCRUD = () => {
   const [usuarios, setUsuarios] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // Ejemplo de usuarios. En una aplicación real, estos vendrían de una base de datos
-  const exampleUsers = [
-    { id: 1, nombres: "Juan", apellidos: "Pérez", documento: "123456789", telefono: "1234567890", direccion: "Calle Falsa 123", email: "juan@example.com", rol: "Admin", clave: "pass123" },
-    { id: 2, nombres: "María", apellidos: "Gómez", documento: "987654321", telefono: "0987654321", direccion: "Avenida Siempre Viva 742", email: "maria@example.com", rol: "User", clave: "pass456" }
-  ];
+  // Cargar usuarios desde el servidor
+  useEffect(() => {
+    const fetchUsuarios = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/usuarios', {
+          credentials: 'include'
+        });
+        const data = await response.json();
+        setUsuarios(data);
+      } catch (err) {
+        console.error('Error fetching users:', err);
+      }
+    };
 
-  // Simula la carga de usuarios
-  useState(() => {
-    setUsuarios(exampleUsers);
+    fetchUsuarios();
   }, []);
 
   const handleSearch = () => {
-    const user = exampleUsers.find((user) => user.id === parseInt(searchTerm));
+    const user = usuarios.find((user) => user.id === parseInt(searchTerm));
     setUsuarios(user ? [user] : []);
   };
 
-  const handleResetSearch = () => {
-    setUsuarios(exampleUsers);
-    setSearchTerm("");
+  const handleResetSearch = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/usuarios', {
+        credentials: 'include'
+      });
+      const data = await response.json();
+      setUsuarios(data);
+      setSearchTerm("");
+    } catch (err) {
+      console.error('Error resetting search:', err);
+    }
   };
 
   const handleInputChange = (index, field, value) => {
@@ -32,19 +45,48 @@ const UsuariosCRUD = () => {
     setUsuarios(newUsuarios);
   };
 
-  const handleSave = () => {
-    alert('Usuario actualizado');
+  const handleSave = async (index) => {
+    const usuario = usuarios[index];
+    try {
+      const response = await fetch(`http://localhost:3000/usuarios/${usuario.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(usuario),
+        credentials: 'include'
+      });
+      if (response.ok) {
+        alert('Usuario actualizado');
+      } else {
+        alert('Error al actualizar el usuario');
+      }
+    } catch (err) {
+      console.error('Error al actualizar el usuario:', err);
+    }
   };
 
-  const handleDelete = (index) => {
-    const newUsuarios = usuarios.filter((_, i) => i !== index);
-    setUsuarios(newUsuarios);
-    alert('Usuario eliminado');
+  const handleDelete = async (index) => {
+    const usuario = usuarios[index];
+    try {
+      const response = await fetch(`http://localhost:3000/usuarios/${usuario.id}`, {
+        method: 'DELETE',
+        credentials: 'include'
+      });
+      if (response.ok) {
+        setUsuarios(usuarios.filter((_, i) => i !== index));
+        alert('Usuario eliminado');
+      } else {
+        alert('Error al eliminar el usuario');
+      }
+    } catch (err) {
+      console.error('Error al eliminar el usuario:', err);
+    }
   };
 
   return (
     <div className="usuarios-crud">
-      <h2>Usuarios</h2>
+      <h2>Admin Usuarios</h2>
       <div className="buscar-usuarios">
         <input
           type="text"
@@ -59,15 +101,9 @@ const UsuariosCRUD = () => {
         <thead>
           <tr>
             <th>ID</th>
-            <th>Nombres</th>
-            <th>Apellidos</th>
-            <th>Documento</th>
-            <th>Teléfono</th>
-            <th>Dirección</th>
-            <th>Email</th>
             <th>Rol</th>
             <th>Clave</th>
-            <th>Guardar</th>
+            <th>Actualizar</th>
             <th>Eliminar</th>
           </tr>
         </thead>
@@ -75,48 +111,6 @@ const UsuariosCRUD = () => {
           {usuarios.map((usuario, index) => (
             <tr key={usuario.id}>
               <td>{usuario.id}</td>
-              <td>
-                <input
-                  type="text"
-                  value={usuario.nombres}
-                  onChange={(e) => handleInputChange(index, 'nombres', e.target.value)}
-                />
-              </td>
-              <td>
-                <input
-                  type="text"
-                  value={usuario.apellidos}
-                  onChange={(e) => handleInputChange(index, 'apellidos', e.target.value)}
-                />
-              </td>
-              <td>
-                <input
-                  type="text"
-                  value={usuario.documento}
-                  onChange={(e) => handleInputChange(index, 'documento', e.target.value)}
-                />
-              </td>
-              <td>
-                <input
-                  type="text"
-                  value={usuario.telefono}
-                  onChange={(e) => handleInputChange(index, 'telefono', e.target.value)}
-                />
-              </td>
-              <td>
-                <input
-                  type="text"
-                  value={usuario.direccion}
-                  onChange={(e) => handleInputChange(index, 'direccion', e.target.value)}
-                />
-              </td>
-              <td>
-                <input
-                  type="text"
-                  value={usuario.email}
-                  onChange={(e) => handleInputChange(index, 'email', e.target.value)}
-                />
-              </td>
               <td>
                 <input
                   type="text"
@@ -132,7 +126,7 @@ const UsuariosCRUD = () => {
                 />
               </td>
               <td>
-                <button onClick={() => handleSave(index)}>Guardar</button>
+                <button onClick={() => handleSave(index)}>Actualizar</button>
               </td>
               <td>
                 <button onClick={() => handleDelete(index)}>Eliminar</button>
@@ -144,5 +138,6 @@ const UsuariosCRUD = () => {
     </div>
   );
 };
+
 
 export default UsuariosCRUD;
